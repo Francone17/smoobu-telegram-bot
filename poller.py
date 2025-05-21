@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from dotenv import load_dotenv
 from dateutil import parser
@@ -13,6 +14,8 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SMOOBU_API_URL = "https://login.smoobu.com/api"
 HEADERS = {"Api-Key": SMOOBU_API_KEY}
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+
+REPLIED_FILE = "replied.json"
 
 VALID_APARTMENTS = {
     "B1 Suite 1", "B2 Suite 2", "B3 Suite 3", "B4 Casa dell'Alfiere", "B5 Casa Solferino",
@@ -36,6 +39,16 @@ PARKING_REPLY_EN = (
     "The place is called Garage AUTOPALAZZO (https://www.garageautopalazzo.it/?page_id=475), in Via Bertola 7.\n"
     "When you arrive at the garage, tell the personnel you are guests at Top Living Apartments and you'll pay a reduced tariff of 32€ per day."
 )
+
+def load_replied():
+    if os.path.exists(REPLIED_FILE):
+        with open(REPLIED_FILE, "r") as f:
+            return set(json.load(f))
+    return set()
+
+def save_replied(replied_ids):
+    with open(REPLIED_FILE, "w") as f:
+        json.dump(list(replied_ids), f)
 
 def get_all_bookings():
     res = requests.get(f"{SMOOBU_API_URL}/reservations", headers=HEADERS)
@@ -90,15 +103,15 @@ def generate_reply_from_ai(message):
             return res.json()["choices"][0]["message"]["content"].strip()
         else:
             print("❌ Errore OpenAI:", res.status_code, res.text)
-            # send_telegram_log(f"❌ OpenAI API Error: {res.status_code}\n{res.text}")  # opzionale
             return "Grazie per il messaggio! Ti risponderemo al più presto."
     except Exception as e:
         print("❌ Errore chiamata OpenAI:", e)
-        # send_telegram_log(f"❌ Errore chiamata OpenAI:\n{e}")  # opzionale
         return "Grazie per il messaggio! Ti risponderemo al più presto."
 
 def check_and_reply():
+    replied_ids = load_replied()
     bookings = get_all_bookings()
+
     for booking in bookings:
         booking_id = booking.get("id")
         apartment_name = booking.get("apartment", {}).get("name", "")
@@ -109,15 +122,9 @@ def check_and_reply():
             continue
 
         latest = messages[-1]
-        if latest["type"] != 1:
-            continue
+        latest_msg_id = latest["id"]
 
-        latest_time = parser.parse(latest["createdAt"])
-        already_replied = any(
-            m["type"] == 2 and parser.parse(m["createdAt"]) > latest_time
-            for m in messages
-        )
-        if already_replied:
+        if latest["type"] != 1 or str(latest_msg_id) in replied_ids:
             continue
 
         message_text = latest["message"]
@@ -128,6 +135,9 @@ def check_and_reply():
             ai_reply = generate_reply_from_ai(message_text)
 
         sent = send_smoobu_reply(booking_id, ai_reply)
+        if sent:
+            replied_ids.add(str(latest_msg_id))
+            save_replied(replied_ids)
 
         log = f"🤖 Risposta AI inviata per prenotazione #{booking_id} — Successo: {sent}\nMessaggio: {ai_reply}"
         print(log)
@@ -135,4 +145,5 @@ def check_and_reply():
 
 if __name__ == "__main__":
     check_and_reply()
+
 
