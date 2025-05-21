@@ -14,6 +14,30 @@ SMOOBU_API_URL = "https://login.smoobu.com/api"
 HEADERS = {"Api-Key": SMOOBU_API_KEY}
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
+# Appartamenti che usano la risposta personalizzata per il parcheggio
+VALID_APARTMENTS = {
+    "B1 Suite 1", "B2 Suite 2", "B3 Suite 3", "B4 Casa dell'Alfiere", "B5 Casa Solferino",
+    "B6 Carlina", "B7 San Carlo", "C1 De Lellis 1", "C2 De Lellis 2",
+    "C3 De Lellis 3", "C4 De Lellis 4", "D Mercanti"
+}
+
+KEYWORDS_PARKING = [
+    "parcheggio", "auto", "macchina", "garage", "dove parcheggiare",
+    "parking", "car", "where to park"
+]
+
+PARKING_REPLY_IT = (
+    "Per quanto riguarda il parcheggio, ci appoggiamo a un'autorimessa convenzionata che si trova "
+    "a 3 a piedi minuti dall'appartamento. Si chiama Garage AUTOPALAZZO in Via Bertola 7. "
+    "All'arrivo, comunicando che siete ospiti presso Top Living Apartments, otterrete una tariffa ridotta di 32€ al giorno."
+)
+
+PARKING_REPLY_EN = (
+    "For what concerns parking, you can use a partner garage located 3 minutes away from the apartment. "
+    "The place is called Garage AUTOPALAZZO (https://www.garageautopalazzo.it/?page_id=475), in Via Bertola 7.\n"
+    "When you arrive at the garage, tell the personnel you are guests at Top Living Apartments and you'll pay a reduced tariff of 32€ per day."
+)
+
 def get_all_bookings():
     res = requests.get(f"{SMOOBU_API_URL}/reservations", headers=HEADERS)
     return res.json().get("bookings", []) if res.ok else []
@@ -35,6 +59,10 @@ def send_smoobu_reply(booking_id, message_text):
 def send_telegram_log(message):
     if TELEGRAM_CHAT_ID:
         requests.post(TELEGRAM_URL, json={"chat_id": TELEGRAM_CHAT_ID, "text": message})
+
+def contains_parking_keywords(text):
+    lower_text = text.lower()
+    return any(keyword in lower_text for keyword in KEYWORDS_PARKING)
 
 def generate_reply_from_ai(message):
     url = "https://api.openai.com/v1/chat/completions"
@@ -70,6 +98,9 @@ def check_and_reply():
     bookings = get_all_bookings()
     for booking in bookings:
         booking_id = booking.get("id")
+        apartment_name = booking.get("apartment", {}).get("name", "")
+        language = booking.get("language", "it").lower()
+
         messages = get_messages(booking_id)
         if not messages:
             continue
@@ -86,7 +117,13 @@ def check_and_reply():
         if already_replied:
             continue
 
-        ai_reply = generate_reply_from_ai(latest["message"])
+        message_text = latest["message"]
+        # Regola personalizzata parcheggio
+        if apartment_name in VALID_APARTMENTS and contains_parking_keywords(message_text):
+            ai_reply = PARKING_REPLY_IT if language == "it" else PARKING_REPLY_EN
+        else:
+            ai_reply = generate_reply_from_ai(message_text)
+
         sent = send_smoobu_reply(booking_id, ai_reply)
 
         log = f"🤖 Risposta AI inviata per prenotazione #{booking_id} — Successo: {sent}\nMessaggio: {ai_reply}"
