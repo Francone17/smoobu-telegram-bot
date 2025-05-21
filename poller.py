@@ -8,6 +8,7 @@ load_dotenv()
 SMOOBU_API_KEY = os.getenv("SMOOBU_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 SMOOBU_API_URL = "https://login.smoobu.com/api"
 HEADERS = {"Api-Key": SMOOBU_API_KEY}
@@ -36,7 +37,34 @@ def send_telegram_log(message):
         requests.post(TELEGRAM_URL, json={"chat_id": TELEGRAM_CHAT_ID, "text": message})
 
 def generate_reply_from_ai(message):
-    return "Grazie per il messaggio! Ti risponderemo al più presto."
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {
+                "role": "system",
+                "content": "Sei un assistente virtuale gentile, professionale e rapido nel rispondere agli ospiti che prenotano appartamenti. Fornisci risposte brevi, chiare e cortesi."
+            },
+            {
+                "role": "user",
+                "content": message
+            }
+        ],
+        "temperature": 0.6
+    }
+
+    try:
+        res = requests.post(url, headers=headers, json=data)
+        if res.ok:
+            return res.json()["choices"][0]["message"]["content"].strip()
+        else:
+            return "Grazie per il messaggio! Ti risponderemo al più presto."
+    except Exception as e:
+        return f"Errore generazione AI: {e}"
 
 def check_and_reply():
     bookings = get_all_bookings()
@@ -48,7 +76,7 @@ def check_and_reply():
 
         latest = messages[-1]
         if latest["type"] != 1:
-            continue  # l'ultimo messaggio NON è da parte dell’ospite
+            continue
 
         latest_time = parser.parse(latest["createdAt"])
         already_replied = any(
@@ -56,12 +84,12 @@ def check_and_reply():
             for m in messages
         )
         if already_replied:
-            continue  # risposta già inviata manualmente
+            continue
 
-        reply_text = generate_reply_from_ai(latest["message"])
-        sent = send_smoobu_reply(booking_id, reply_text)
+        ai_reply = generate_reply_from_ai(latest["message"])
+        sent = send_smoobu_reply(booking_id, ai_reply)
 
-        log = f"🤖 Risposta automatica inviata per prenotazione #{booking_id} — Successo: {sent}"
+        log = f"🤖 Risposta AI inviata per prenotazione #{booking_id} — Successo: {sent}\nMessaggio: {ai_reply}"
         print(log)
         send_telegram_log(log)
 
