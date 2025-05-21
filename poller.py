@@ -14,7 +14,6 @@ SMOOBU_API_URL = "https://login.smoobu.com/api"
 HEADERS = {"Api-Key": SMOOBU_API_KEY}
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
-# Appartamenti che usano la risposta personalizzata per il parcheggio
 VALID_APARTMENTS = {
     "B1 Suite 1", "B2 Suite 2", "B3 Suite 3", "B4 Casa dell'Alfiere", "B5 Casa Solferino",
     "B6 Carlina", "B7 San Carlo", "C1 De Lellis 1", "C2 De Lellis 2",
@@ -90,9 +89,13 @@ def generate_reply_from_ai(message):
         if res.ok:
             return res.json()["choices"][0]["message"]["content"].strip()
         else:
+            print("❌ Errore OpenAI:", res.status_code, res.text)
+            # send_telegram_log(f"❌ OpenAI API Error: {res.status_code}\n{res.text}")  # opzionale
             return "Grazie per il messaggio! Ti risponderemo al più presto."
     except Exception as e:
-        return f"Errore generazione AI: {e}"
+        print("❌ Errore chiamata OpenAI:", e)
+        # send_telegram_log(f"❌ Errore chiamata OpenAI:\n{e}")  # opzionale
+        return "Grazie per il messaggio! Ti risponderemo al più presto."
 
 def check_and_reply():
     bookings = get_all_bookings()
@@ -118,7 +121,7 @@ def check_and_reply():
             continue
 
         message_text = latest["message"]
-        # Regola personalizzata parcheggio
+
         if apartment_name in VALID_APARTMENTS and contains_parking_keywords(message_text):
             ai_reply = PARKING_REPLY_IT if language == "it" else PARKING_REPLY_EN
         else:
@@ -132,3 +135,4 @@ def check_and_reply():
 
 if __name__ == "__main__":
     check_and_reply()
+
