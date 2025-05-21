@@ -6,6 +6,11 @@ from dateutil import parser
 
 load_dotenv()
 
+# 🔒 Blocco automatico se BOT_ACTIVE ≠ true
+if os.getenv("BOT_ACTIVE", "true").lower() != "true":
+    print("🛑 BOT DISATTIVATO — nessuna risposta inviata.")
+    exit()
+
 SMOOBU_API_KEY = os.getenv("SMOOBU_API_KEY")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
