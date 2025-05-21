@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: smoobu-bot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
+    envVars:
+      - key: SMOOBU_API_KEY
+        sync: false
+      - key: TELEGRAM_TOKEN
+        sync: false
