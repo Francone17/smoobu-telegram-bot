@@ -35,12 +35,14 @@ def get_all_reservations():
     response = requests.get(url, headers=headers)
 
     try:
-        data = response.json()
-        return data.get("bookings", [])
+        response.raise_for_status()
+        return response.json().get("bookings", [])
+    except requests.exceptions.HTTPError as http_err:
+        print("❌ HTTP error:", http_err)
     except Exception as e:
         print("❌ Errore nel parsing JSON della risposta Smoobu:")
         print("Status Code:", response.status_code)
-        print("Contenuto grezzo:", response.text[:500])
+        print("Contenuto grezzo:", response.text[:1000])  # Log primi 1000 caratteri per capire l’errore
         raise e
 
 def get_messages(reservation_id):
