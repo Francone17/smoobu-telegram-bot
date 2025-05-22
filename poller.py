@@ -30,7 +30,7 @@ def send_telegram_message(text):
     requests.post(TELEGRAM_URL, json=payload)
 
 def get_all_reservations():
-    url = f"{SMOOBU_API_URL}/bookings"
+    url = f"{SMOOBU_API_URL}/reservations"
     headers = {"Api-Key": SMOOBU_API_KEY}
     response = requests.get(url, headers=headers)
 
