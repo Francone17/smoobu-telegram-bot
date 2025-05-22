@@ -133,10 +133,14 @@ def check_and_reply():
         user_message = ""
 
         if messages:
-            latest = messages[-1]
-            if latest["type"] != 1:  # L'ultimo messaggio è nostro → non rispondiamo
+            sorted_msgs = sorted(messages, key=lambda m: parser.parse(m["date"]), reverse=True)
+            last_msg = sorted_msgs[0]
+
+            if last_msg["type"] != 1:
+                print(f"🔕 Ultimo messaggio per prenotazione {booking_id} non è dell’ospite, nessuna risposta.")
                 continue
-            user_message = latest["message"]
+
+            user_message = last_msg["message"]
         elif notice_text:
             user_message = notice_text
         else:
@@ -158,3 +162,4 @@ def check_and_reply():
 
 if __name__ == "__main__":
     check_and_reply()
+
