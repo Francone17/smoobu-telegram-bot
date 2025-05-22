@@ -133,7 +133,12 @@ def check_and_reply():
         user_message = ""
 
         if messages:
-            sorted_msgs = sorted(messages, key=lambda m: parser.parse(m["date"]), reverse=True)
+            valid_msgs = [m for m in messages if "date" in m]
+            if not valid_msgs:
+                print(f"⚠️ Nessuna data valida nei messaggi per prenotazione {booking_id}, salto.")
+                continue
+
+            sorted_msgs = sorted(valid_msgs, key=lambda m: parser.parse(m["date"]), reverse=True)
             last_msg = sorted_msgs[0]
 
             if last_msg["type"] != 1:
@@ -162,4 +167,3 @@ def check_and_reply():
 
 if __name__ == "__main__":
     check_and_reply()
-
