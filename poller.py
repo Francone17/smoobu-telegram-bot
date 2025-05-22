@@ -20,7 +20,7 @@ SMOOBU_API_URL = "https://login.smoobu.com/api"
 HEADERS = {"Api-Key": SMOOBU_API_KEY}
 TELEGRAM_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
-REPLIED_FILE = "replied.json"
+REPLIED_FILE = "replied_bookings.json"
 
 VALID_APARTMENTS = {
     "B1 Suite 1", "B2 Suite 2", "B3 Suite 3", "B4 Casa dell'Alfiere", "B5 Casa Solferino",
@@ -35,7 +35,7 @@ KEYWORDS_PARKING = [
 
 PARKING_REPLY_IT = (
     "Per quanto riguarda il parcheggio, ci appoggiamo a un'autorimessa convenzionata che si trova "
-    "a 3 a piedi minuti dall'appartamento. Si chiama Garage AUTOPALAZZO in Via Bertola 7. "
+    "a 3 minuti a piedi dall'appartamento. Si chiama Garage AUTOPALAZZO in Via Bertola 7. "
     "All'arrivo, comunicando che siete ospiti presso Top Living Apartments, otterrete una tariffa ridotta di 32€ al giorno."
 )
 
@@ -45,13 +45,13 @@ PARKING_REPLY_EN = (
     "When you arrive at the garage, tell the personnel you are guests at Top Living Apartments and you'll pay a reduced tariff of 32€ per day."
 )
 
-def load_replied():
+def load_replied_bookings():
     if os.path.exists(REPLIED_FILE):
         with open(REPLIED_FILE, "r") as f:
             return set(json.load(f))
     return set()
 
-def save_replied(replied_ids):
+def save_replied_bookings(replied_ids):
     with open(REPLIED_FILE, "w") as f:
         json.dump(list(replied_ids), f)
 
@@ -92,7 +92,7 @@ def generate_reply_from_ai(message):
         "messages": [
             {
                 "role": "system",
-                "content": "Sei un assistente virtuale gentile, professionale e rapido nel rispondere agli ospiti che prenotano appartamenti. Fornisci risposte brevi, chiare e cortesi."
+                "content": "Sei un assistente virtuale per appartamenti in affitto. Rispondi agli ospiti in modo amichevole, gentile e chiaro. Usa frasi semplici e dirette, evita formalismi eccessivi. Mostrati disponibile e umano, ma non invadente. Mantieni un tono professionale ma caldo."
             },
             {
                 "role": "user",
@@ -114,41 +114,47 @@ def generate_reply_from_ai(message):
         return "Grazie per il messaggio! Ti risponderemo al più presto."
 
 def check_and_reply():
-    replied_ids = load_replied()
+    replied = load_replied_bookings()
     bookings = get_all_bookings()
 
     for booking in bookings:
         booking_id = booking.get("id")
+        if str(booking_id) in replied:
+            continue
+
         apartment_name = booking.get("apartment", {}).get("name", "")
         language = booking.get("language", "it").lower()
+        notice_text = booking.get("notice", "").strip()
 
         messages = get_messages(booking_id)
-        if not messages:
-            continue
+        user_message = ""
 
-        latest = messages[-1]
-        latest_msg_id = latest["id"]
-
-        if latest["type"] != 1 or str(latest_msg_id) in replied_ids:
-            continue
-
-        message_text = latest["message"]
-
-        if apartment_name in VALID_APARTMENTS and contains_parking_keywords(message_text):
-            ai_reply = PARKING_REPLY_IT if language == "it" else PARKING_REPLY_EN
+        if messages:
+            latest = messages[-1]
+            if latest["type"] != 1:
+                continue
+            user_message = latest["message"]
+        elif notice_text:
+            user_message = notice_text
         else:
-            ai_reply = generate_reply_from_ai(message_text)
+            continue
 
-        sent = send_smoobu_reply(booking_id, ai_reply)
+        if apartment_name in VALID_APARTMENTS and contains_parking_keywords(user_message):
+            reply = PARKING_REPLY_IT if language == "it" else PARKING_REPLY_EN
+        else:
+            reply = generate_reply_from_ai(user_message)
+
+        sent = send_smoobu_reply(booking_id, reply)
         if sent:
-            replied_ids.add(str(latest_msg_id))
-            save_replied(replied_ids)
+            replied.add(str(booking_id))
+            save_replied_bookings(replied)
 
-        log = f"🤖 Risposta AI inviata per prenotazione #{booking_id} — Successo: {sent}\nMessaggio: {ai_reply}"
+        log = f"🤖 Risposta AI inviata per prenotazione #{booking_id} — Successo: {sent}\nMessaggio: {reply}"
         print(log)
         send_telegram_log(log)
 
 if __name__ == "__main__":
     check_and_reply()
+
 
 
