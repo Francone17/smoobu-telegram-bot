@@ -6,7 +6,6 @@ from dateutil import parser
 
 load_dotenv()
 
-# 🔒 Blocco automatico se BOT_ACTIVE ≠ true
 if os.getenv("BOT_ACTIVE", "true").lower() != "true":
     print("🛑 BOT DISATTIVATO — nessuna risposta inviata.")
     exit()
@@ -82,6 +81,10 @@ def contains_parking_keywords(text):
     return any(keyword in lower_text for keyword in KEYWORDS_PARKING)
 
 def generate_reply_from_ai(message):
+    if not OPENAI_API_KEY:
+        print("❌ Nessuna API Key OpenAI configurata.")
+        return "Grazie per il messaggio! Ti risponderemo al più presto."
+
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {OPENAI_API_KEY}",
@@ -131,7 +134,7 @@ def check_and_reply():
 
         if messages:
             latest = messages[-1]
-            if latest["type"] != 1:
+            if latest["type"] != 1:  # L'ultimo messaggio è nostro → non rispondiamo
                 continue
             user_message = latest["message"]
         elif notice_text:
@@ -155,6 +158,3 @@ def check_and_reply():
 
 if __name__ == "__main__":
     check_and_reply()
-
-
-
