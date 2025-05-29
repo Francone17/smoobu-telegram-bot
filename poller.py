@@ -67,7 +67,7 @@ def generate_ai_response(message_text, guest_name):
             f"Sei un host di appartamenti turistici. Rispondi a questo messaggio da parte dell'ospite {guest_name} "
             "in modo gentile, utile e cordiale. Non troppo formale. Se chiede informazioni su parcheggio, rispondi con i dettagli dell'autorimessa convenzionata."
         )
-        response = openai.ChatCompletion.create(
+        response = openai.Completion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": system_prompt},
