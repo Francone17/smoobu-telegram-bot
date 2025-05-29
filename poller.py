@@ -3,6 +3,7 @@ import requests
 from dotenv import load_dotenv
 from dateutil import parser
 import openai
+from openai import OpenAI
 
 load_dotenv()
 
@@ -61,20 +62,16 @@ def send_telegram_notification(text):
         data={"chat_id": TELEGRAM_CHAT_ID, "text": text}
     )
 
-def generate_ai_response(message_text, guest_name):
+def generate_ai_response(message_text, guest_name, open_ai_client):
     try:
-        system_prompt = (
-            f"Sei un host di appartamenti turistici. Rispondi a questo messaggio da parte dell'ospite {guest_name} "
-            "in modo gentile, utile e cordiale. Non troppo formale. Se chiede informazioni su parcheggio, rispondi con i dettagli dell'autorimessa convenzionata."
-        )
-        response = openai.Completion.create(
+        system_prompt =  ("Sei un host di appartamenti turistici."
+                          " Rispondi a questo messaggio da parte dell'ospite {guest_name} in modo gentile, utile e cordiale. "
+                          "Non troppo formale. Il messaggio che ti ha inviato è: {message_text}")
+
+        response = openai.completions.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": message_text}
-            ],
-            max_tokens=300,
-            temperature=0.7
+            prompt=system_prompt,
+            max_tokens=300
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -84,6 +81,7 @@ def generate_ai_response(message_text, guest_name):
 def check_and_reply():
     print("🔄 Controllo nuove conversazioni...")
     reservations = [get_all_reservations()]
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
     for res in reservations:
         res_id = res["id"]
@@ -114,7 +112,7 @@ def check_and_reply():
             last_text = last_msg.get("message", "")
             guest_name = res.get("guest-name", "ospite")
 
-            ai_reply = generate_ai_response(last_text, guest_name)
+            ai_reply = generate_ai_response(last_text, guest_name, client)
             send_reply(res_id, ai_reply)
         else:
             print(f"✅ Ultimo messaggio NON dell'ospite — prenotazione {res_id}")
