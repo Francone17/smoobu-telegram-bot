@@ -15,14 +15,15 @@ HEADERS = {"API-Key": SMOOBU_API_KEY}
 BASE_URL = "https://login.smoobu.com/api"
 openai.api_key = OPENAI_API_KEY
 
+
 # Solo queste due prenotazioni verranno monitorate
-ALLOWED_RESERVATION_IDS = [92270673, 96423893]
+ALLOWED_RESERVATION_IDS = [98806978]
 
 def get_all_reservations():
     try:
-        response = requests.get(f"{BASE_URL}/reservations", headers=HEADERS)
+        response = requests.get(f"{BASE_URL}/reservations/${ALLOWED_RESERVATION_IDS[0]}", headers=HEADERS)
         response.raise_for_status()
-        return response.json().get("bookings", [])
+        return response.json()
     except requests.exceptions.HTTPError as e:
         print(f"❌ HTTP error: {e}")
         return []
@@ -82,7 +83,7 @@ def generate_ai_response(message_text, guest_name):
 
 def check_and_reply():
     print("🔄 Controllo nuove conversazioni...")
-    reservations = get_all_reservations()
+    reservations = [get_all_reservations()]
 
     for res in reservations:
         res_id = res["id"]
