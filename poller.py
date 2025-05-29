@@ -1,4 +1,6 @@
 import os
+from platform import system
+
 import requests
 from dotenv import load_dotenv
 from dateutil import parser
@@ -64,13 +66,18 @@ def send_telegram_notification(text):
 
 def generate_ai_response(message_text, guest_name, open_ai_client):
     try:
-        system_prompt =  ("Sei un host di appartamenti turistici."
-                          " Rispondi a questo messaggio da parte dell'ospite {guest_name} in modo gentile, utile e cordiale. "
-                          "Non troppo formale. Il messaggio che ti ha inviato è: {message_text}")
+        system_prompt = (
+            "Sei un host di appartamenti turistici. "
+            "Rispondi a questo messaggio da parte dell'ospite {guest_name} in modo gentile, utile e cordiale. "
+            "Non troppo formale. Il messaggio che ti ha inviato è: {message_text}"
+        )
+        system_prompt = system_prompt.format(guest_name=guest_name, message_text=message_text)
 
-        response = openai.completions.create(
+        response = open_ai_client.chat.completions.create(
             model="gpt-3.5-turbo",
-            prompt=system_prompt,
+            messages=[
+                {"role": "user", "content": system_prompt},
+            ],
             max_tokens=300
         )
         return response.choices[0].message.content.strip()
