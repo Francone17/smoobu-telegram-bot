@@ -21,7 +21,7 @@ ALLOWED_RESERVATION_IDS = [98806978]
 
 def get_all_reservations():
     try:
-        response = requests.get(f"{BASE_URL}/reservations/${ALLOWED_RESERVATION_IDS[0]}", headers=HEADERS)
+        response = requests.get(f"{BASE_URL}/reservations/{ALLOWED_RESERVATION_IDS[0]}", headers=HEADERS)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as e:
