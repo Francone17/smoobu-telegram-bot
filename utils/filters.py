@@ -1,48 +1,42 @@
+import csv
+import os
 import re
 
-# List of keywords/phrases that flag a message as sensitive
-SENSITIVE_KEYWORDS = [
-    "refund",
-    "cancel",
-    "emergency",
-    "angry",
-    "complaint",
-    "legal",
-    "sue",
-    "police",
-    "injury",
-    "problem with the host",
-    "broken",
-    "unsafe",
-    "danger",
-    "bedbugs",
-    "disgusting",
-    "fire",
-    "flood",
-    "theft"
-]
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SENSITIVE_TERMS_PATH = os.path.join(PROJECT_ROOT, "data", "sensitive_terms.csv")
 
-# Optional: Regex patterns for more complex detection
-SENSITIVE_PATTERNS = [
-    r"\b(compensat(e|ion))\b",
-    r"\b(reimburse)\b",
-    r"\b(not acceptable)\b",
-    r"\b(this is unacceptable)\b",
-    r"\b(file(d)? a complaint)\b"
-]
+def load_sensitive_terms():
+    keywords = []
+    patterns = []
+
+    try:
+        with open(SENSITIVE_TERMS_PATH, newline="", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                term_type = row["type"].strip().lower()
+                term = row["term"].strip()
+                if term_type == "keyword":
+                    keywords.append(term)
+                elif term_type == "pattern":
+                    patterns.append(term)
+    except FileNotFoundError:
+        print(f"[WARN] Sensitive terms file not found: {SENSITIVE_TERMS_PATH}")
+
+    return keywords, patterns
+
+# Load terms once
+SENSITIVE_KEYWORDS, SENSITIVE_PATTERNS = load_sensitive_terms()
 
 def is_sensitive(message: str) -> bool:
     """
-    Returns True if the message is considered sensitive.
+    Returns True if the message is considered sensitive based on keywords or patterns.
     """
     lowered = message.lower()
 
-    # Check for keyword matches
     for keyword in SENSITIVE_KEYWORDS:
         if keyword in lowered:
             return True
 
-    # Check for regex pattern matches
     for pattern in SENSITIVE_PATTERNS:
         if re.search(pattern, lowered):
             return True

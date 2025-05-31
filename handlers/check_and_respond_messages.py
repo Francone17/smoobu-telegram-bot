@@ -9,7 +9,7 @@ ALLOWED_RESERVATION_IDS = [98806978]
 def check_and_reply():
     print("🔄 Controllo nuove conversazioni...")
 
-    reservations = load_json("data/current_reservations.json")
+    reservations = load_json("current_reservations.json")
     if not reservations:
         print("⚠️ Nessuna prenotazione trovata.")
         return

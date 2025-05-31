@@ -1,20 +1,13 @@
 import os
-import openai
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-
 SMOOBU_API_KEY = os.getenv("SMOOBU_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 HEADERS = {"API-Key": SMOOBU_API_KEY}
 BASE_URL = "https://login.smoobu.com/api"
-openai.api_key = OPENAI_API_KEY
-
 
 def get_reservations(params: dict):
     response = requests.get(

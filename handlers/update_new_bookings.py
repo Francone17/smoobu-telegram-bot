@@ -9,7 +9,7 @@ def update_new_bookings():
     created_from = (now - timedelta(minutes=15)).strftime("%Y-%m-%dT%H:%M:%S")
     created_to = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-    existing = load_json("data/current_reservations.json") or []
+    existing = load_json("current_reservations.json") or []
     existing_ids = {r["id"] for r in existing}
 
     all_new = []
