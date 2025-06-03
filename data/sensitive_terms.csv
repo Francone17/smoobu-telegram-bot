@@ -1,0 +1,140 @@
+type,term
+keyword,refund
+keyword,cancel
+keyword,emergency
+keyword,angry
+keyword,complaint
+keyword,legal
+keyword,sue
+keyword,police
+keyword,injury
+keyword,problem with the host
+keyword,broken
+keyword,unsafe
+keyword,danger
+keyword,bedbugs
+keyword,disgusting
+keyword,fire
+keyword,flood
+keyword,theft
+keyword,stolen
+keyword,noise
+keyword,bugs
+keyword,dirty
+keyword,roaches
+keyword,mold
+keyword,scam
+keyword,fraud
+keyword,chargeback
+keyword,accident
+keyword,dissatisfied
+keyword,unacceptable
+keyword,unauthorized
+keyword,unauthorised
+keyword,malfunction
+keyword,dispute
+keyword,smoke
+keyword,harassment
+keyword,threat
+keyword,threatening
+keyword,emergency number
+keyword,ambulance
+keyword,violence
+keyword,assault
+keyword,injured
+keyword,dangerous
+keyword,no heating
+keyword,no hot water
+keyword,late response
+pattern,\b(compensat(e|ion))\b
+pattern,\b(reimburse(d)?)\b
+pattern,\b(not acceptable)\b
+pattern,\b(demanding a refund)\b
+pattern,\b(report(ed)? to police)\b
+keyword,rimborso
+keyword,cancellazione
+keyword,emergenza
+keyword,arrabbiato
+keyword,lamentela
+keyword,legale
+keyword,denunciare
+keyword,polizia
+keyword,infortunio
+keyword,problema con l'host
+keyword,rotto
+keyword,non sicuro
+keyword,pericolo
+keyword,insetti
+keyword,schifoso
+keyword,incendio
+keyword,allagamento
+keyword,furto
+keyword,rumore
+keyword,sporco
+keyword,scarafaggi
+keyword,muffa
+keyword,truffa
+keyword,frode
+keyword,contestazione
+keyword,accusa
+keyword,disservizio
+keyword,accidenti
+keyword,violazione
+keyword,assistenza urgente
+keyword,ambulanza
+keyword,violenza
+keyword,aggressione
+keyword,pericoloso
+keyword,senza riscaldamento
+keyword,senza acqua calda
+keyword,risposta in ritardo
+keyword,scomodità
+keyword,servizi mancanti
+pattern,\b(risarcimento)\b
+pattern,\b(non accettabile)\b
+pattern,\b(rimbors[oa]ti?)\b
+pattern,\b(denuncia(to)?)\b
+pattern,\b(minaccia)\b
+keyword,reembolso
+keyword,cancelación
+keyword,emergencia
+keyword,enojado
+keyword,queja
+keyword,legal
+keyword,demandar
+keyword,policía
+keyword,lesión
+keyword,problema con el anfitrión
+keyword,roto
+keyword,inseguro
+keyword,peligro
+keyword,chinches
+keyword,asqueroso
+keyword,incendio
+keyword,inundación
+keyword,robo
+keyword,ruido
+keyword,sucio
+keyword,cucarachas
+keyword,moho
+keyword,estafa
+keyword,fraude
+keyword,disputa
+keyword,accidente
+keyword,violencia
+keyword,agresión
+keyword,urgente
+keyword,ambulancia
+keyword,riesgo
+keyword,herido
+keyword,amenaza
+keyword,servicio deficiente
+keyword,sin calefacción
+keyword,sin agua caliente
+keyword,respuesta lenta
+keyword,inaceptable
+pattern,\b(compensación)\b
+pattern,\b(reembols[ao]?)\b
+pattern,\b(inaceptable)\b
+pattern,\b(denunciado)\b
+pattern,\b(amenaza)\b
