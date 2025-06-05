@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  smoobu-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smoobu-bot
+    volumes:
+      - ./data:/mnt/data  # Mimic Render's persistent disk
+    env_file:
+      - .env
+    command: python main.py
