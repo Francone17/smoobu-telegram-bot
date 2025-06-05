@@ -9,18 +9,24 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 ASSISTANT_ID = os.getenv("OPENAI_ASSISTANT_ID")
 
-def get_assistant_response(message: str, reservation: dict) -> str:
+def get_assistant_response(message: str, reservation: dict, apt_name: str) -> str:
     """
     Sends a message and reservation context to the OpenAI Assistant
     and returns the assistant's response.
+
+    Args:
+        apt_name:
     """
     thread = client.beta.threads.create()
+
+    content = f"User message: {message}\nApartment: {apt_name}"
+    print(content)
 
     # Add user message
     client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content=message
+        content=content
     )
 
     # Run the assistant with extra instructions/context

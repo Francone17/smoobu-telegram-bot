@@ -40,13 +40,15 @@ def check_and_reply():
             print(f"📨 Ultimo messaggio DELL'ospite — prenotazione {res_id}")
             last_text = last_msg.get("message", "")
             guest_name = res.get("guestName", "ospite")
+            apt_object = res.get("apartmentName") or {}
+            apt_name = apt_object.get("name", "Appartamento sconosciuto")
 
             if is_sensitive(last_text):
                 print(f"⚠️ Messaggio sensibile da {guest_name}, escalation umana necessaria.")
                 continue
 
             try:
-                ai_reply = get_assistant_response(last_text, res)
+                ai_reply = get_assistant_response(last_text, res, apt_name)
                 send_reply(res_id, ai_reply)
                 print(f"✅ Risposta inviata a {guest_name}")
             except Exception as e:
