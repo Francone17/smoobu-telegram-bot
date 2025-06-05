@@ -1,6 +1,7 @@
 services:
   - type: web
-    name: smoobu-scheduler
+    name: smoobu-bot
+    runtime: docker       # ← required for using dockerfilePath
     dockerfilePath: ./Dockerfile
     plan: starter
     autoDeploy: false
@@ -10,6 +11,8 @@ services:
       sizeGB: 1
     envVars:
       - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_ASSISTANT_ID
         sync: false
       - key: SMOOBU_API_KEY
         sync: false
