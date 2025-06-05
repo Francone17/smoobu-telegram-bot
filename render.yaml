@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker
     name: smoobu-bot
     runtime: docker       # ← required for using dockerfilePath
     dockerfilePath: ./Dockerfile
