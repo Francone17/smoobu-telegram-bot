@@ -7,11 +7,10 @@ from utils.file_utils import load_json
 ALLOWED_RESERVATION_IDS = [98806978]
 
 def check_and_reply():
-    print("🔄 Controllo nuove conversazioni...")
 
     reservations = load_json("current_reservations.json")
     if not reservations:
-        print("⚠️ Nessuna prenotazione trovata.")
+        print("⚠️ No reservations.")
         return
 
     for res in reservations:
@@ -21,7 +20,7 @@ def check_and_reply():
 
         messages = get_messages(res_id)
         if not messages:
-            print(f"⚠️ Nessun messaggio per prenotazione {res_id}, salto.")
+            print(f"⚠️ No message for reservation {res_id}, skipping.")
             continue
 
         try:
