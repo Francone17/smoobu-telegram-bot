@@ -87,5 +87,10 @@ def update_assistant_file():
         for f in file_streams:
             f.close()
 
+def list_files():
+    assistant = client.beta.assistants.retrieve(assistant_id)
+    print(assistant.file_ids)
+
 if __name__ == "__main__":
-    create_assistant_with_file()
+    list_files()
+    update_assistant_file()
