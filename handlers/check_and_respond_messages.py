@@ -4,7 +4,7 @@ from assistants.assistant import get_assistant_response
 from utils.filters import is_sensitive
 from utils.file_utils import load_json
 
-ALLOWED_RESERVATION_IDS = [98806978]
+ALLOWED_RESERVATION_IDS = [98835313]
 
 def check_and_reply():
 
