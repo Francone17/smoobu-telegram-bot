@@ -4,3 +4,4 @@ python-dotenv
 gunicorn
 python-dateutil
 openai
+schedule
