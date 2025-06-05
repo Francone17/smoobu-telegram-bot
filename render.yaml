@@ -10,3 +10,43 @@ services:
         sync: false
       - key: TELEGRAM_TOKEN
         sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+
+  - type: cron
+    name: smoobu-check-and-reply
+    env: python
+    schedule: "* * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python cron/message_cron.py
+    envVars:
+      - key: SMOOBU_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_ASSISTANT_ID
+        sync: false
+
+  - type: cron
+    name: smoobu-update-new-bookings
+    env: python
+    schedule: "*/15 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python cron/update_new.py
+    envVars:
+      - key: SMOOBU_API_KEY
+        sync: false
+
+  - type: cron
+    name: smoobu-daily-reservation-refresh
+    env: python
+    schedule: "0 3 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python cron/update_daily.py
+    envVars:
+      - key: SMOOBU_API_KEY
+        sync: false
+
+
+
+
