@@ -40,7 +40,7 @@ def check_and_reply():
             print(f"📨 Ultimo messaggio DELL'ospite — prenotazione {res_id}")
             last_text = last_msg.get("message", "")
             guest_name = res.get("guestName", "ospite")
-            apt_object = res.get("apartmentName") or {}
+            apt_object = res.get("apartment") or {}
             apt_name = apt_object.get("name", "Appartamento sconosciuto")
 
             if is_sensitive(last_text):
