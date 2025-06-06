@@ -1,3 +1,4 @@
+import csv
 import os
 from openai import OpenAI
 
@@ -17,9 +18,9 @@ def create_assistant_with_file():
         tools=[{"type": "file_search"}],
     )
     file_paths = [
-        os.path.join("../data", "luggage_responses_by_apartment.txt"),
+        os.path.join("../data", "luggage_responses_by_apartment.csv"),
         os.path.join("../data", "prompts_chat_bot.pdf"),
-        os.path.join("../data", "parking_instructions_by_apartment.txt")
+        os.path.join("../data", "parking_instructions_by_apartment.csv")
     ]
 
     print(assistant.id)
@@ -91,6 +92,14 @@ def list_files():
     assistant = client.beta.assistants.retrieve(assistant_id)
     print(assistant.file_ids)
 
+
+def csv_to_txt(csv_path, txt_path):
+    with open(csv_path, "r", encoding="utf-8") as csv_file, \
+         open(txt_path, "w", encoding="utf-8") as txt_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            txt_file.write(" | ".join(row) + "\n")
+
+
 if __name__ == "__main__":
-    list_files()
     update_assistant_file()

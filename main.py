@@ -15,6 +15,5 @@ schedule.every(15).minutes.do(update_new_bookings)
 schedule.every().day.at("03:00").do(get_all_reservations)
 
 while True:
-    print("⏱ running scheduled tasks...")
     schedule.run_pending()
-    time.sleep(1)
+    time.sleep(30)
