@@ -30,7 +30,7 @@ def check_and_reply():
                 fetched_messages = get_messages(res_id, params)
                 if not fetched_messages:
                     break
-                messages.append(fetched_messages)
+                messages.extend(fetched_messages)
                 page += 1
             except requests.exceptions.HTTPError as e:
                 print(f"[ERROR] HTTP error on page {page}: {e}")
