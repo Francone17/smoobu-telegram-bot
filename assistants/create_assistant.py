@@ -88,6 +88,20 @@ def update_assistant_file():
         for f in file_streams:
             f.close()
 
+
+def update_assistant_instructions(assistant_id: str, new_instructions: str) -> dict:
+    try:
+        response = client.beta.assistants.update(
+            assistant_id=assistant_id,
+            instructions=new_instructions
+        )
+        print("✅ Assistant instructions updated.")
+        return response
+    except Exception as e:
+        print(f"❌ Failed to update assistant instructions: {e}")
+        return None
+
+
 def list_files():
     assistant = client.beta.assistants.retrieve(assistant_id)
     print(assistant.file_ids)
@@ -102,4 +116,9 @@ def csv_to_txt(csv_path, txt_path):
 
 
 if __name__ == "__main__":
-    update_assistant_file()
+    update_assistant_instructions(
+        assistant_id=assistant_id,
+        new_instructions="You are an assistant that responds to guest messages using the provided document as a guide."
+                         "You manage tourist apartments in Turin and assist guests with their inquiries."
+                         "Please make sure you respond in the language of the guest (Italian or English) and provide helpful, accurate information based on the context of their message."
+    )
