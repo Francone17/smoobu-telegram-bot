@@ -1,3 +1,4 @@
+import requests
 from dateutil import parser
 from utils.smoobu_api import get_messages, send_reply
 from assistants.assistant import get_assistant_response
@@ -18,22 +19,32 @@ def check_and_reply():
         if res_id not in ALLOWED_RESERVATION_IDS:
             continue  # Ignora prenotazioni non monitorate
 
-        messages = get_messages(res_id)
+        page = 1
+        messages = []
+        while True:
+            try:
+                params = {
+                    "page": page,
+                    "pageSize": 100
+                }
+                fetched_messages = get_messages(res_id, params)
+                if not fetched_messages:
+                    break
+                messages.append(fetched_messages)
+                page += 1
+            except requests.exceptions.HTTPError as e:
+                print(f"[ERROR] HTTP error on page {page}: {e}")
+                break
+            except Exception as e:
+                print(f"[ERROR] Unexpected error on page {page}: {e}")
+                break
         if not messages:
             print(f"⚠️ No message for reservation {res_id}, skipping.")
             continue
 
-        try:
-            sorted_msgs = sorted(
-                messages,
-                key=lambda m: parser.parse(m["createdAt"]),
-                reverse=True
-            )
-        except Exception as e:
-            print(f"⚠️ Errore ordinamento messaggi prenotazione {res_id}: {e}")
-            continue
 
-        last_msg = sorted_msgs[0]
+
+        last_msg = messages[-1]
         msg_type = last_msg.get("type")
 
         if msg_type == 1:  # Incoming from guest

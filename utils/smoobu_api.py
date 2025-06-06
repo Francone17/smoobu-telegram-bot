@@ -20,11 +20,12 @@ def get_reservations(params: dict):
     return data
 
 
-def get_messages(reservation_id):
+def get_messages(reservation_id, params):
     try:
         response = requests.get(
             f"{BASE_URL}/reservations/{reservation_id}/messages",
-            headers=HEADERS
+            headers=HEADERS,
+            params=params
         )
         response.raise_for_status()
         return response.json().get("messages", [])
