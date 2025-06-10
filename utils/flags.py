@@ -18,7 +18,6 @@ def is_test_mode_enabled():
         print(f"[WARN] Failed to read 'test-mode' flag: {e}")
         return False
 
-
 def get_allowed_reservation_ids():
     raw = _env_flags.get_feature_value("allowed-reservation-ids")
     return json.loads(raw or "[]")

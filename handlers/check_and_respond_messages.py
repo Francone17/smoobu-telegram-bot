@@ -75,9 +75,9 @@ def check_and_reply():
                 continue
 
             try:
-                ai_reply = get_assistant_response(last_text, res, apt_name)
-                send_reply(res_id, ai_reply)
-                print(f"✅ Risposta inviata a {guest_name}")
+                # ai_reply = get_assistant_response(last_text, res, apt_name)
+                # send_reply(res_id, ai_reply)
+                print(f"✅ Fake send a {guest_name}")
             except Exception as e:
                 print(f"❌ Errore nella risposta automatica per {guest_name}: {e}")
         else:
