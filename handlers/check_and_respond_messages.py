@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 from dateutil import parser
 from utils.smoobu_api import get_messages, send_reply
@@ -7,7 +9,8 @@ from utils.file_utils import load_json
 from utils.flags import (
     is_test_mode_enabled,
     get_allowed_reservation_ids,
-    get_blocked_reservation_ids
+    get_blocked_reservation_ids,
+    get_human_resolved_complaint_ids
 )
 
 def check_and_reply():
@@ -19,6 +22,7 @@ def check_and_reply():
     test_mode = is_test_mode_enabled()
     allowed_ids = get_allowed_reservation_ids()
     blocked_ids = get_blocked_reservation_ids()
+    human_resolved_complaint_ids = get_human_resolved_complaint_ids()
 
     for res in reservations:
         res_id = res.get("id")
@@ -52,14 +56,21 @@ def check_and_reply():
             print(f"⚠️ No message for reservation {res_id}, skipping.")
             continue
 
-        last_msg = messages[-1]
+        sorted_messages = sorted(
+            messages,
+            key=lambda m: datetime.strptime(m["createdAt"], "%Y-%m-%d %H:%M:%S"),
+            reverse=True
+        )
+
+        last_msg = sorted_messages[0]
         if last_msg.get("type") == 1:
             print(f"📨 Ultimo messaggio DELL'ospite — prenotazione {res_id}")
             last_text = last_msg.get("message", "")
             guest_name = res.get("guestName", "ospite")
             apt_name = (res.get("apartment") or {}).get("name", "Appartamento sconosciuto")
+            print(last_text)
 
-            if is_sensitive(last_text):
+            if is_sensitive(last_text) and res_id not in human_resolved_complaint_ids :
                 print(f"⚠️ Messaggio sensibile da {guest_name}, escalation umana necessaria.")
                 continue
 
