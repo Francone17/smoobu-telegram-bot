@@ -31,7 +31,7 @@ def update_assistant_instructions():
 def update_assistant_files():
     file_paths = [
         os.path.join("../data", "luggage_responses_by_apartment.txt"),
-        os.path.join("../data", "prompts_chat_bot.pdf"),
+        os.path.join("../data", "top_living_apartments.pdf"),
         os.path.join("../data", "parking_instructions_by_apartment.txt")
     ]
 

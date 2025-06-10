@@ -71,6 +71,7 @@ def check_and_reply():
         if last_msg.get("type") == 1:
             print(f"📨 Ultimo messaggio DELL'ospite — prenotazione {res_id}")
             last_text = last_msg.get("message", "")
+            apt_name = (res.get("apartment") or {}).get("name", "Appartamento sconosciuto")
             guest_name = res.get("firstname", "ospite")
             print(last_text)
 
@@ -79,7 +80,7 @@ def check_and_reply():
                 continue
 
             try:
-                ai_reply = get_assistant_response(last_text, res, guest_name)
+                ai_reply = get_assistant_response(last_text, res, guest_name, apt_name)
                 send_reply(res_id, ai_reply)
                 print(f"✅ Fake send a {guest_name}")
             except Exception as e:
