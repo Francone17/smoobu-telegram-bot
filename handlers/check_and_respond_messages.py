@@ -28,7 +28,6 @@ def check_and_reply():
 
     for res in reservations:
         res_id = res.get("id")
-        print(test_mode)
 
         if res_id in blocked_ids:
             print(f"⛔ Reservation {res_id} is blocked by feature flag.")
@@ -41,7 +40,6 @@ def check_and_reply():
         if staging_mode and res_id not in staging_ids:
             print(f"⛔ Reservation {res_id} not in staging mode allowed ids.")
             continue
-
 
         page = 1
         messages = []
