@@ -10,7 +10,7 @@ from utils.flags import (
     is_test_mode_enabled,
     get_allowed_reservation_ids,
     get_blocked_reservation_ids,
-    get_human_resolved_complaint_ids
+    get_human_resolved_complaint_ids, is_staging_mode_enabled
 )
 
 def check_and_reply():
@@ -20,6 +20,8 @@ def check_and_reply():
         return
 
     test_mode = is_test_mode_enabled()
+    staging_mode = is_staging_mode_enabled()
+    staging_ids = get_allowed_reservation_ids()
     allowed_ids = get_allowed_reservation_ids()
     blocked_ids = get_blocked_reservation_ids()
     human_resolved_complaint_ids = get_human_resolved_complaint_ids()
@@ -35,6 +37,11 @@ def check_and_reply():
         if test_mode and res_id not in allowed_ids:
             print(f"⛔ Reservation {res_id} not in test-mode allowlist.")
             continue
+
+        if staging_mode and res_id not in staging_ids:
+            print(f"⛔ Reservation {res_id} not in staging mode allowed ids.")
+            continue
+
 
         page = 1
         messages = []
@@ -76,8 +83,8 @@ def check_and_reply():
                 continue
 
             try:
-                # ai_reply = get_assistant_response(last_text, res, apt_name)
-                # send_reply(res_id, ai_reply)
+                ai_reply = get_assistant_response(last_text, res, apt_name)
+                send_reply(res_id, ai_reply)
                 print(f"✅ Fake send a {guest_name}")
             except Exception as e:
                 print(f"❌ Errore nella risposta automatica per {guest_name}: {e}")

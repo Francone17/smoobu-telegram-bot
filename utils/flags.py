@@ -12,12 +12,21 @@ _env_flags = _flagsmith.get_environment_flags()
 
 def is_test_mode_enabled():
     try:
-        print("[INFO] Checking 'test-mode' feature flag...")
-        print(_env_flags.is_feature_enabled("test-mode"))
         return _env_flags.is_feature_enabled("test-mode")
     except Exception as e:
         print(f"[WARN] Failed to read 'test-mode' flag: {e}")
         return False
+
+def is_staging_mode_enabled():
+    try:
+        return _env_flags.is_feature_enabled("staging-mode")
+    except Exception as e:
+        print(f"[WARN] Failed to read 'staging-mode' flag: {e}")
+        return False
+
+def get_staging_reservation_ids():
+    raw = _env_flags.get_feature_value("staging-reservation-ids")
+    return json.loads(raw or "[]")
 
 def get_allowed_reservation_ids():
     raw = _env_flags.get_feature_value("allowed-reservation-ids")
