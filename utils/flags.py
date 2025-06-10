@@ -12,6 +12,7 @@ _env_flags = _flagsmith.get_environment_flags()
 
 def is_test_mode_enabled():
     try:
+        print("[INFO] Checking 'test-mode' feature flag...")
         return _env_flags.is_feature_enabled("test-mode")
     except Exception as e:
         print(f"[WARN] Failed to read 'test-mode' flag: {e}")
