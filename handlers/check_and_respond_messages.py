@@ -26,6 +26,7 @@ def check_and_reply():
 
     for res in reservations:
         res_id = res.get("id")
+        print(test_mode)
 
         if res_id in blocked_ids:
             print(f"⛔ Reservation {res_id} is blocked by feature flag.")
